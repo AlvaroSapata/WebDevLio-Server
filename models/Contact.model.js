@@ -3,8 +3,17 @@ const { Schema, model } = require("mongoose");
 // Contact
 const contactSchema = new Schema(
   {
-    links: {
-      type: [String],
+    githubLink: {
+      type: String,
+      default:" ",
+    },
+    linkedinLink: {
+      type: String,
+      default:" ",
+    },
+    emailLink: {
+      type: String,
+      default:" ",
     },
   },
   {
