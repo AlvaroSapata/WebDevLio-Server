@@ -173,7 +173,7 @@ Contact model
 | POST        | `/auth/signup`                | {name, email, password} | 201            | 400          | Registers the user in the Database             |
 | POST        | `/auth/login`                 | {username, password}    | 200            | 400          | Validates credentials, creates and sends Token |
 | GET         | `/auth/verify`                |                         | 200            | 401          | Verifies the user Token                        |
-| DELETE      | `/auth/:userId/delete`        |                         | 200            | 401          | Deletes user account                           |
+| DELETE      | `/auth/delete/:userId`        |                         | 200            | 401          | Deletes user account                           |
 | GET         | `/:userId/HomeProfile`        |                         | 200            | 400          | Show user Home                                 |
 | POST        | `/:userId/HomeProfile`        |                         | 201            | 400          | Creates a new Home                             |
 | PUT         | `/:userId/HomeProfile`        |                         | 200            | 400, 401     | Edits user Home                                |
