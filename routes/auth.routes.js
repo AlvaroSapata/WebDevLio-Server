@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
+const isOwner = require("../middleware/isOwner.middleware");
+
 // ℹ️ Handles password encryption
 const bcrypt = require("bcrypt");
 
@@ -21,8 +23,18 @@ router.post("/signup", (req, res, next) => {
   const { email, password, name, lastName, username } = req.body;
 
   //todo Check if email or password or name are provided as empty strings
-  if (email === "" || password === "" || name === ""|| lastName === ""|| username === "") {
-    res.status(400).json({ message: "Provide email, password ,name ,last name and username" });
+  if (
+    email === "" ||
+    password === "" ||
+    name === "" ||
+    lastName === "" ||
+    username === ""
+  ) {
+    res
+      .status(400)
+      .json({
+        message: "Provide email, password ,name ,last name and username",
+      });
     return;
   }
 
@@ -58,15 +70,21 @@ router.post("/signup", (req, res, next) => {
 
       // Create the new user in the database
       // We return a pending promise, which allows us to chain another `then`
-      return User.create({ email, password: hashedPassword, name, lastName, username, });
+      return User.create({
+        email,
+        password: hashedPassword,
+        name,
+        lastName,
+        username,
+      });
     })
     .then((createdUser) => {
       // Deconstruct the newly created user object to omit the password
       // We should never expose passwords publicly
-      const { email, name, lastName, username,_id } = createdUser;
+      const { email, name, lastName, username, _id } = createdUser;
 
       // Create a new object that doesn't expose the password
-      const user = { email, name, lastName, username,_id };
+      const user = { email, name, lastName, username, _id };
 
       // Send a json response containing the user object
       res.status(201).json({ user: user });
@@ -126,6 +144,22 @@ router.get("/verify", isAuthenticated, (req, res, next) => {
 
   // Send back the token payload object containing the user data
   res.status(200).json(req.payload);
+});
+
+// DELETE "/auth/delete/:userId" - Deletes a user from the database
+router.delete("/delete/:userId", isAuthenticated, isOwner, (req, res, next) => {
+  const { userId } = req.params;
+  User.findByIdAndDelete(userId)
+    .then((deletedUser) => {
+      if (!deletedUser) {
+        res.status(404).json({ message: "User not found." });
+        return;
+      }
+      res.status(200).json({ message: "User deleted." });
+    })
+    .catch((error) => {
+      next(error);
+    });
 });
 
 module.exports = router;
