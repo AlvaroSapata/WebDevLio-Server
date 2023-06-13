@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
+const isOwner = require("../middleware/isOwner.middleware");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
+
 const Contact = require("../models/Contact.model");
 const User = require("../models/User.model");
 
@@ -21,63 +24,75 @@ router.get("/:userId/contact", async (req, res, next) => {
 });
 
 // POST /api/:userId/contact => Gets the fields of a Contact and creates it in the DB
-router.post("/:userId/contact", async (req, res, next) => {
-  // Gets userId from params
-  const userId = req.params.userId;
-  //! Destructure the body
-  const { githubLink, linkedinLink, emailLink } = req.body;
-  // Validate the fields
-  //   if (!image || !title || !description || !githubLinks || !liveDemo) {
-  //     res.status(400).json({ message: "All fields should be completed" });
-  //     return;
-  //   }
-  try {
-    // Creates a new project
-    const newContact = await Contact.create({
-      githubLink,
-      linkedinLink,
-      emailLink,
-    });
-    // Adds the new project to the user's projects
-    await User.findByIdAndUpdate(
-      userId,
-      { $push: { contact: newContact._id } },
-      { new: true }
-    );
-    // Sends the new project to the FE
-    res.json(newContact);
-  } catch (error) {
-    next(error);
+router.post(
+  "/:userId/contact",
+  isAuthenticated,
+  isOwner,
+  async (req, res, next) => {
+    // Gets userId from params
+    const userId = req.params.userId;
+    //! Destructure the body
+    const { githubLink, linkedinLink, emailLink } = req.body;
+    // Validate the fields
+    //   if (!image || !title || !description || !githubLinks || !liveDemo) {
+    //     res.status(400).json({ message: "All fields should be completed" });
+    //     return;
+    //   }
+    try {
+      // Creates a new project
+      const newContact = await Contact.create({
+        githubLink,
+        linkedinLink,
+        emailLink,
+      });
+      // Adds the new project to the user's projects
+      await User.findByIdAndUpdate(
+        userId,
+        { $push: { contact: newContact._id } },
+        { new: true }
+      );
+      // Sends the new project to the FE
+      res.json(newContact);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // PUT /api/:userId/Contact/:contactId => Edit the contact info
-router.put("/:userId/contact/:contactId", async (req, res, next) => {
-  // Gets userId from params
-  const userId = req.params.userId;
-  // Gets projectId from params
-  const contactId = req.params.contactId;
-  // Destructure the body
-  const { githubLink, linkedinLink, emailLink } = req.body;
-  // Validate the fields
-  // if (!image || !title || !description || !githubLinks || !liveDemo) {
-  //   res.status(400).json({ message: "All fields should be completed" });
-  //   return;
-  // }
-  try {
-    // Updates the project
-    const updatedContact = await Contact.findByIdAndUpdate(
-      contactId,
-      {
-        githubLink, linkedinLink, emailLink
-      },
-      { new: true }
-    );
-    // Sends the updated project to the FE
-    res.json(updatedContact);
-  } catch (error) {
-    next(error);
+router.put(
+  "/:userId/contact/:contactId",
+  isAuthenticated,
+  isOwner,
+  async (req, res, next) => {
+    // Gets userId from params
+    const userId = req.params.userId;
+    // Gets projectId from params
+    const contactId = req.params.contactId;
+    // Destructure the body
+    const { githubLink, linkedinLink, emailLink } = req.body;
+    // Validate the fields
+    // if (!image || !title || !description || !githubLinks || !liveDemo) {
+    //   res.status(400).json({ message: "All fields should be completed" });
+    //   return;
+    // }
+    try {
+      // Updates the project
+      const updatedContact = await Contact.findByIdAndUpdate(
+        contactId,
+        {
+          githubLink,
+          linkedinLink,
+          emailLink,
+        },
+        { new: true }
+      );
+      // Sends the updated project to the FE
+      res.json(updatedContact);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 module.exports = router;

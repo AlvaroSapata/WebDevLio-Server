@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
+const isOwner = require("../middleware/isOwner.middleware");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
+
 const HomeProfile = require("../models/HomeProfile.model");
 const User = require("../models/User.model");
 
@@ -21,68 +24,80 @@ router.get("/:userId/homeProfile", async (req, res, next) => {
 });
 
 // POST /api/:userId/homeProfile => Gets the fields of a Contact and creates it in the DB
-router.post("/:userId/homeProfile", async (req, res, next) => {
-  // Gets userId from params
-  const userId = req.params.userId;
-  //! Destructure the body
-  const { title, description, profileImage, links, backgroundImage } = req.body;
-  // Validate the fields
-  //   if (!image || !title || !description || !githubLinks || !liveDemo) {
-  //     res.status(400).json({ message: "All fields should be completed" });
-  //     return;
-  //   }
-  try {
-    // Creates a new project
-    const newHomeProfile = await HomeProfile.create({
-      title,
-      description,
-      profileImage,
-      links,
-      backgroundImage,
-    });
-    // Adds the new project to the user's projects
-    await User.findByIdAndUpdate(
-      userId,
-      { $push: { homeProfile: newHomeProfile._id } },
-      { new: true }
-    );
-    // Sends the new project to the FE
-    res.json(newHomeProfile);
-  } catch (error) {
-    next(error);
-  }
-});
-
-// PUT /api/:userId/homeProfile/:homeProfileId => Edit the contact info
-router.put("/:userId/homeProfile/:homeProfileId", async (req, res, next) => {
-  // Gets userId from params
-  const userId = req.params.userId;
-  // Gets projectId from params
-  const homeProfileId = req.params.homeProfileId;
-  // Destructure the body
-  const { title, description, profileImage, links, backgroundImage } = req.body;
-  // Validate the fields
-  // if (!image || !title || !description || !githubLinks || !liveDemo) {
-  //   res.status(400).json({ message: "All fields should be completed" });
-  //   return;
-  // }
-  try {
-    // Updates the project
-    const updatedHomeProfile = await HomeProfile.findByIdAndUpdate(
-      homeProfileId,
-      {
+router.post(
+  "/:userId/homeProfile",
+  isAuthenticated,
+  isOwner,
+  async (req, res, next) => {
+    // Gets userId from params
+    const userId = req.params.userId;
+    //! Destructure the body
+    const { title, description, profileImage, links, backgroundImage } =
+      req.body;
+    // Validate the fields
+    //   if (!image || !title || !description || !githubLinks || !liveDemo) {
+    //     res.status(400).json({ message: "All fields should be completed" });
+    //     return;
+    //   }
+    try {
+      // Creates a new project
+      const newHomeProfile = await HomeProfile.create({
         title,
         description,
         profileImage,
         links,
         backgroundImage,
-      },
-      { new: true }
-    );
-    // Sends the updated project to the FE
-    res.json(updatedHomeProfile);
-  } catch (error) {
-    next(error);
+      });
+      // Adds the new project to the user's projects
+      await User.findByIdAndUpdate(
+        userId,
+        { $push: { homeProfile: newHomeProfile._id } },
+        { new: true }
+      );
+      // Sends the new project to the FE
+      res.json(newHomeProfile);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
+
+// PUT /api/:userId/homeProfile/:homeProfileId => Edit the contact info
+router.put(
+  "/:userId/homeProfile/:homeProfileId",
+  isAuthenticated,
+  isOwner,
+  async (req, res, next) => {
+    // Gets userId from params
+    const userId = req.params.userId;
+    // Gets projectId from params
+    const homeProfileId = req.params.homeProfileId;
+    // Destructure the body
+    const { title, description, profileImage, links, backgroundImage } =
+      req.body;
+    // Validate the fields
+    // if (!image || !title || !description || !githubLinks || !liveDemo) {
+    //   res.status(400).json({ message: "All fields should be completed" });
+    //   return;
+    // }
+    try {
+      // Updates the project
+      const updatedHomeProfile = await HomeProfile.findByIdAndUpdate(
+        homeProfileId,
+        {
+          title,
+          description,
+          profileImage,
+          links,
+          backgroundImage,
+        },
+        { new: true }
+      );
+      // Sends the updated project to the FE
+      res.json(updatedHomeProfile);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 module.exports = router;
