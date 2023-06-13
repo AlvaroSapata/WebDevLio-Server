@@ -193,9 +193,9 @@ Contact model
 
 ### Collaborators
 
-[Developer 1 name](https://github.com/AlvaroSapata)
+[Alvaro Martinez](https://github.com/AlvaroSapata)
 
-[Developer 2 name](https://github.com/Johnny-Ig)
+[Jonathan Iglesias](https://github.com/Johnny-Ig)
 
 ### Project
 
