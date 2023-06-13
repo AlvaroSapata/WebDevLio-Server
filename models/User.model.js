@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 
-// TODO: Please make sure you edit the User model to whatever makes sense in this case
+// User
 const userSchema = new Schema(
   {
     email: {
@@ -17,11 +17,36 @@ const userSchema = new Schema(
     name: {
       type: String,
       required: [true, "Name is required."],
+      trim: true,
     },
-    firstName:{
+    lastName: {
       type: String,
-      required: [true, "First Name is required."],
-    }
+      required: [true, "Last Name is required."],
+      trim: true,
+    },
+    username: {
+      type: String,
+      required: [true, "Username is required."],
+      unique: true,
+      trim: true,
+    },
+    homeProfile: {
+      type: Schema.Types.ObjectId,
+      ref: "HomeProfile",
+      // Default?
+    },
+    skillsList: {
+      type: [Schema.Types.ObjectId],
+      ref: "Skill",
+    },
+    projects: {
+      type: [Schema.Types.ObjectId],
+      ref: "Project",
+    },
+    contact: {
+      type: Schema.Types.ObjectId,
+      ref: "Contact",
+    },
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`
