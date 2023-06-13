@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const Skill = require("../models/Skill.model")
+const User = require("../models/User.model");
 
 //GET /api/:userId/skillsList => enviar al front end la lista de todos los skills
 router.get("/:userId/skillsList", async (req, res, next) => {
