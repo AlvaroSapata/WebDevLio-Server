@@ -24,7 +24,7 @@ router.get("/:userId/contact", async (req, res, next) => {
 router.post("/:userId/contact", async (req, res, next) => {
   // Gets userId from params
   const userId = req.params.userId;
-  // Destructure the body
+  //! Destructure the body
   const { githubLink, linkedinLink, emailLink } = req.body;
   // Validate the fields
   //   if (!image || !title || !description || !githubLinks || !liveDemo) {
@@ -50,6 +50,7 @@ router.post("/:userId/contact", async (req, res, next) => {
     next(error);
   }
 });
+
 // PUT /api/:userId/Contact/:contactId => Edit the contact info
 router.put("/:userId/contact/:contactId", async (req, res, next) => {
   // Gets userId from params
