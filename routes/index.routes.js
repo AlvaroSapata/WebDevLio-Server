@@ -5,12 +5,18 @@ router.get("/", (req, res, next) => {
   res.json("All good in here");
 });
 
+// auth routes
+router.use("/auth", require("./auth.routes"));
+
 // project routes
 router.use("/", require("./projects.routes"))
+
 // contact routes
 router.use("/", require("./contact.routes"))
+
 // skillsList routes
 router.use("/", require("./skillsList.routes"))
+
 // homeProfile routes
 router.use("/", require("./homeProfile.routes"))
 
