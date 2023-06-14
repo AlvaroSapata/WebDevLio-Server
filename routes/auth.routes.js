@@ -12,6 +12,10 @@ const jwt = require("jsonwebtoken");
 // Require the User model in order to interact with the database
 const User = require("../models/User.model");
 
+// Require the HomeProfile and Contact model to add it to the user on signup
+const HomeProfile = require("../models/HomeProfile.model");
+const Contact = require("../models/Contact.model");
+
 // Require necessary (isAuthenticated) middleware in order to control access to specific routes
 const { isAuthenticated } = require("../middleware/jwt.middleware.js");
 
@@ -22,7 +26,7 @@ const saltRounds = 10;
 router.post("/signup", (req, res, next) => {
   const { email, password, name, lastName, username } = req.body;
 
-  //todo Check if email or password or name are provided as empty strings
+  // Checks if the fields are empty
   if (
     email === "" ||
     password === "" ||
@@ -33,7 +37,7 @@ router.post("/signup", (req, res, next) => {
     res
       .status(400)
       .json({
-        message: "Provide email, password ,name ,last name and username",
+        message: "All fields are required.",
       });
     return;
   }
@@ -56,13 +60,19 @@ router.post("/signup", (req, res, next) => {
   }
 
   // Check the users collection if a user with the same email already exists
-  User.findOne({ email })
-    .then((foundUser) => {
-      // If the user with the same email already exists, send an error response
-      if (foundUser) {
-        res.status(400).json({ message: "User already exists." });
-        return;
+// Check the users collection if a user with the same email or username already exists
+User.findOne({ $or: [{ email }, { username }] })
+  .then((foundUser) => {
+    if (foundUser) {
+      if (foundUser.email === email) {
+        // If a user with the same email already exists, send an error response
+        res.status(400).json({ message: "User already registered with that email." });
+      } else {
+        // If a user with the same username already exists, send an error response
+        res.status(400).json({ message: "Username already exists." });
       }
+      return;
+    }
 
       // If email is unique, proceed to hash the password
       const salt = bcrypt.genSaltSync(saltRounds);
@@ -76,6 +86,8 @@ router.post("/signup", (req, res, next) => {
         name,
         lastName,
         username,
+        homeProfile: new HomeProfile(),
+        contact: new Contact(),
       });
     })
     .then((createdUser) => {

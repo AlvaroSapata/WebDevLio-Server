@@ -8,16 +8,16 @@ router.get("/", (req, res, next) => {
 // auth routes
 router.use("/auth", require("./auth.routes"));
 
-// project routes
-router.use("/", require("./projects.routes"))
-
-// contact routes
-router.use("/", require("./contact.routes"))
+// homeProfile routes
+router.use("/", require("./homeProfile.routes"));
 
 // skillsList routes
-router.use("/", require("./skillsList.routes"))
+router.use("/", require("./skillsList.routes"));
 
-// homeProfile routes
-router.use("/", require("./homeProfile.routes"))
+// project routes
+router.use("/", require("./projects.routes"));
+
+// contact routes
+router.use("/", require("./contact.routes"));
 
 module.exports = router;
