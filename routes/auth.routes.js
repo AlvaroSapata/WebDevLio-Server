@@ -34,11 +34,9 @@ router.post("/signup", (req, res, next) => {
     lastName === "" ||
     username === ""
   ) {
-    res
-      .status(400)
-      .json({
-        message: "All fields are required.",
-      });
+    res.status(400).json({
+      message: "All fields are required.",
+    });
     return;
   }
 
@@ -60,13 +58,14 @@ router.post("/signup", (req, res, next) => {
   }
 
   // Check the users collection if a user with the same email already exists
-// Check the users collection if a user with the same email or username already exists
-User.findOne({ $or: [{ email }, { username }] })
-  .then((foundUser) => {
+  // Check the users collection if a user with the same email or username already exists
+  User.findOne({ $or: [{ email }, { username }] }).then((foundUser) => {
     if (foundUser) {
       if (foundUser.email === email) {
         // If a user with the same email already exists, send an error response
-        res.status(400).json({ message: "User already registered with that email." });
+        res
+          .status(400)
+          .json({ message: "User already registered with that email." });
       } else {
         // If a user with the same username already exists, send an error response
         res.status(400).json({ message: "Username already exists." });
@@ -74,34 +73,41 @@ User.findOne({ $or: [{ email }, { username }] })
       return;
     }
 
-      // If email is unique, proceed to hash the password
-      const salt = bcrypt.genSaltSync(saltRounds);
-      const hashedPassword = bcrypt.hashSync(password, salt);
+    // If email is unique, proceed to hash the password
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hashedPassword = bcrypt.hashSync(password, salt);
 
-      // Create the new user in the database
-      // We return a pending promise, which allows us to chain another `then`
-      return User.create({
-        email,
-        password: hashedPassword,
-        name,
-        lastName,
-        username,
-        homeProfile: new HomeProfile(),
-        contact: new Contact(),
-      });
-    })
-    .then((createdUser) => {
-      // Deconstruct the newly created user object to omit the password
-      // We should never expose passwords publicly
-      const { email, name, lastName, username, _id } = createdUser;
+    // Create the new user in the database
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      name,
+      lastName,
+      username,
+      contact: new Contact(),
+    });
 
-      // Create a new object that doesn't expose the password
-      const user = { email, name, lastName, username, _id };
-
-      // Send a json response containing the user object
-      res.status(201).json({ user: user });
-    })
-    .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
+    newUser
+      .save()
+      .then((createdUser) => {
+        // Create the homeProfile for the user
+        const newHomeProfile = new HomeProfile();
+        newHomeProfile
+          .save()
+          .then(() => {
+            // Assign the created homeProfile to the user
+            createdUser.homeProfile = newHomeProfile._id;
+            return createdUser.save();
+          })
+          .then((savedUser) => {
+            const { email, name, lastName, username, _id } = savedUser;
+            const user = { email, name, lastName, username, _id };
+            res.status(201).json({ user: user });
+          })
+          .catch((err) => next(err));
+      })
+      .catch((err) => next(err));
+  });
 });
 
 // POST  /auth/login - Verifies email and password and returns a JWT

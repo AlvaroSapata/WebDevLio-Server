@@ -11,10 +11,10 @@ const User = require("../models/User.model");
 router.get("/:userId/homeProfile", async (req, res, next) => {
   try {
     // Gets userId from params
-    const userId = req.params.userId;
+    const {userId} = req.params;
+    console.log("REQ:PARAMS",req.params)
     // Finds the user by id and populates the homeProfile
     const user = await User.findById(userId).populate("homeProfile");
-    console.log(user);
     const homeProfile = user.homeProfile;
     // Sends the list of projects to the FE
     res.json(homeProfile);
