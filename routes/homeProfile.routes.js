@@ -8,7 +8,7 @@ const HomeProfile = require("../models/HomeProfile.model");
 const User = require("../models/User.model");
 
 //GET /api/:userId/homeProfile => sends the Contact info to the FE
-router.get("/:userId/homeProfile",isAuthenticated, isOwner, async (req, res, next) => {
+router.get("/:userId/homeProfile",isAuthenticated,  async (req, res, next) => {
   try {
     // Gets userId from params
     const {userId} = req.params;

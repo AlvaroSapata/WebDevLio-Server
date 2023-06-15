@@ -20,4 +20,7 @@ router.use("/", require("./projects.routes"));
 // contact routes
 router.use("/", require("./contact.routes"));
 
+// portfolio routes
+router.use("/", require("./portfolio.routes"));
+
 module.exports = router;
