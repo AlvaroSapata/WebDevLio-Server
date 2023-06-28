@@ -7,12 +7,11 @@ const { isAuthenticated } = require("../middleware/jwt.middleware");
 const HomeProfile = require("../models/HomeProfile.model");
 const User = require("../models/User.model");
 
-//GET /api/:userId/homeProfile => sends the Contact info to the FE
-router.get("/:userId/homeProfile",isAuthenticated,  async (req, res, next) => {
+//GET /api/homeProfile => sends the Contact info to the FE
+router.get("/homeProfile", isAuthenticated,   async (req, res, next) => {
   try {
-    // Gets userId from params
-    const {userId} = req.params;
-    console.log("REQ:PARAMS",req.params)
+    // Gets userId from jwt
+    const userId = req.payload._id
     // Finds the user by id and populates the homeProfile
     const user = await User.findById(userId).populate("homeProfile");
     const homeProfile = user.homeProfile;
